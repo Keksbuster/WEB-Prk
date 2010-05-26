@@ -20,13 +20,35 @@
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
 
+# ----------------------------------------------------------
+class Lagerbereich:
+# ----------------------------------------------------------
+    def __init__(self, name):
+        self.name = name
+        self.artikle_list = []
+    
+    def __str__(self):
+        return self.name
+
+# ----------------------------------------------------------
+class Artikle:
+# ----------------------------------------------------------
+    def __init__(self, name, lagerort, mindest_menge, max_menge, aktuelle_menge):
+        self.name = name
+        self.lagerort = lagerort
+        self.mindest_menge = mindest_menge
+        self.max_menge = max_menge
+        self.aktuelle_menge = aktuelle_menge
+    
+    def __str__(self):
+        return "%s, %s" % (self.name, self.lagerort)
 
 # ----------------------------------------------------------
 class Warehouse:
 # ----------------------------------------------------------
     def __init__(self):
         self.lagerbereich = {}
-        self.produkte = []
+        self.produkte = {}
 
     def newProduct(self, name, lagerort, mindest_menge, max_menge, aktuelle_menge):
         pass
@@ -60,6 +82,11 @@ class Warehouse:
          
          
 def main():
+    test = Lagerbereich("lager B")
+    artikle = Artikle("Artikle 1", "lager B", 5, 20, 10)
+    
+    print artikle
+    print test
     
     return 0
 

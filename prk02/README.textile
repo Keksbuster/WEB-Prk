@@ -6,6 +6,12 @@ h2. Aufgabe
     
     * Eine einfache Lagerhaltungs Software
     
+h2. Ideen
+    
+    * Implementierung der Klassen
+    ** Lagerbereich und Artikle sind eigene Klassen die in der Klasse Warehouse organisiert werden
+    ** Warehouse kann mehrere Artikle und Lagerbereiche aufnehmen
+
 h2. ToDo
 
     * Noch ein zu tragen
