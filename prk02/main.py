@@ -32,6 +32,9 @@ class WebServer:
     # ----------------------------------------------------------
         pass
     
+    def new(self):
+        self.datastore = Warehouse()
+    
     def load(self, file):
         inp = open(file, 'rb')
         self.datastore = load(inp)
@@ -113,7 +116,7 @@ def main():
         webserver.load('data.dat')
     except:
         print "New File!"
-        datastore = Warehouse()
+        webserver.new()
     
     DispatchInfo = wsgiserver.WSGIPathInfoDispatcher({'/': webserver.Home_p, '/static':webserver.Static_p})
    

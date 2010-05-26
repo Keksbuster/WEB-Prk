@@ -1,0 +1,11 @@
+h1. README
+
+Eine kleine README zum 2. Praktia
+
+h2. Aufgabe
+    
+    * Eine einfache Lagerhaltungs Software
+    
+h2. ToDo
+
+    * Noch ein zu tragen
