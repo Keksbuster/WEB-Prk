@@ -124,10 +124,13 @@ def main():
     server = wsgiserver.CherryPyWSGIServer(('0.0.0.0', 8080), DispatchInfo, timeout=100)
    
     try:
+        print "Server auf http://localhost:8080 gestartet..."
         server.start()
     except KeyboardInterrupt:
         server.stop()
+        print "\nServer gestoppt...\t",
         webserver.save('data.dat')
+        print "Daten gesichert!"
    
 # ----------------------------------------------------------
 # ----------------------------------------------------------

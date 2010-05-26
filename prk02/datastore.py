@@ -40,8 +40,23 @@ class Artikle:
         self.max_menge = max_menge
         self.aktuelle_menge = aktuelle_menge
     
+    def edit(self, name, lagerort, mindest_menge, max_menge, aktuelle_menge):
+        self.name = name
+        self.lagerort = lagerort
+        self.mindest_menge = mindest_menge
+        self.max_menge = max_menge
+        self.aktuelle_menge = aktuelle_menge
+    
+    def increment(self):
+        if(self.aktuelle_menge +1 > self.max_menge):
+            return 1
+        else:
+            self.aktuelle_menge += 1
+            return 0
+            
     def __str__(self):
         return "%s, %s" % (self.name, self.lagerort)
+    
 
 # ----------------------------------------------------------
 class Warehouse:
@@ -51,42 +66,51 @@ class Warehouse:
         self.produkte = {}
 
     def newProduct(self, name, lagerort, mindest_menge, max_menge, aktuelle_menge):
-        pass
+        try:
+            self.produkte[name] = Artikle(name, lagerort, mindest_menge, max_menge, aktuelle_menge)
+            return 0
+        except:
+            return 1
 
     def newLagerort(self, name):
-        pass
+        try:
+            self.lagerbereich[name] = Lagerbereich(name)
+            return 0
+        except:
+            return 1
     
     def editProduct(self, name, lagerort, mindest_menge, max_menge, aktuelle_menge):
-        pass
+        self.produkte[name].edit(name, lagerort, mindest_menge, max_menge, aktuelle_menge)
 
     def editLagerort(self, name):
         pass
 
     def deleteProduct(self, name):
-        pass
+        del self.produkte[name]
     
     def deleteLagerort(self, name):
-        pass
+        del self.lagerbereich[name]
 
     def getProducts(self):
-        pass
+        return self.produkte
     
     def getProduct(self, name):
-        pass
+        return self.produkte[name]
     
     def getLagerorte(self):
-        pass
+        return self.lagerbereich
     
     def getLagerort(self, name):
-        pass   
+        return self.lagerbereich[name]   
          
          
 def main():
-    test = Lagerbereich("lager B")
-    artikle = Artikle("Artikle 1", "lager B", 5, 20, 10)
+    database = Warehouse()
+    database.newLagerort("lager B")
+    database.newProduct("Artikle 1", "lager B", 5, 20, 10)
     
-    print artikle
-    print test
+    print database.getProduct("Artikle 1")
+    print database.getLagerort("lager B")
     
     return 0
 
