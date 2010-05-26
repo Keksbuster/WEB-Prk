@@ -25,62 +25,77 @@ from cPickle import dump, load, dumps, loads
 import wsgiserver
 import cgi
 import os.path
-import os
 
-# ----------------------------------------------------------
-def Message_p(start_response, Status_spl, Message_spl):
-# ----------------------------------------------------------
-    response_headers = [('Content-type','text/plain')]
-    start_response(Status_spl, response_headers)
-    return [Message_spl]
-
-# ----------------------------------------------------------
-def ServeFile_p(start_response, Path_spl):
-# ----------------------------------------------------------
-   # hier nur Auswertung von Textdateien, XHTML-Dateien und CSS-Dateien
-    try:
-        File_o = file(Path_spl, "r")
-        Content_s = File_o.read()
-        File_o.close()
-      
+class WebServer:
+    # ----------------------------------------------------------
+    def __init__(self):
+    # ----------------------------------------------------------
+        pass
+    
+    def load(self, file):
+        inp = open(file, 'rb')
+        self.datastore = load(inp)
+        inp.close()
+    
+    def save(self, file):
+        out = open(file, 'wb')
+        dump(self.datastore, out)
+        out.close()
+    
+    # ----------------------------------------------------------
+    def Message_p(self, start_response, Status_spl, Message_spl):
+    # ----------------------------------------------------------
         response_headers = [('Content-type','text/plain')]
-        (root, ext) = os.path.splitext(Path_spl)
-        if ext == ".css":
-            response_headers = [('Content-type','text/css')]
-        elif ext == ".html":
-            response_headers = [('Content-type','text/html')]
-
-        start_response("200 OK", response_headers)
-        return [Content_s]
-    except:
-        return Message_p(start_response, "404 Not found", "Datei " + Path_spl + " nicht vorhanden")
-
-# ----------------------------------------------------------
-def Static_p(environ, start_response):
-# ----------------------------------------------------------
-    Path_s = environ["PATH_INFO"]
-    (head, tail) = os.path.split(Path_s)
-    if tail == "":
-        return Message_p(start_response, '404 Not found', 'Static : unbekannte Ressource' + Path_s + '\n')
-    else:
-        return ServeFile_p(start_response, "static/" + tail)
-
-# ----------------------------------------------------------
-def Home_p(environ, start_response): 
-# ----------------------------------------------------------
-    Path_s = environ["PATH_INFO"]
-    if Path_s == "/":
-        # keine weiteren Angaben im Ressource-Pfad
-        # Startseite anzeigen
-        return Message_p(start_response, '200 OK' , os.environ["DATAFILE"])
-    else:
-        return Message_p(start_response, '404 Not found', 'Home : unbekannte Anforderung' + Path_s + '\n')
+        start_response(Status_spl, response_headers)
+        return [Message_spl]
+    
+    # ----------------------------------------------------------
+    def ServeFile_p(self, start_response, Path_spl):
+    # ----------------------------------------------------------
+       # hier nur Auswertung von Textdateien, XHTML-Dateien und CSS-Dateien
+        try:
+            File_o = file(Path_spl, "r")
+            Content_s = File_o.read()
+            File_o.close()
+          
+            response_headers = [('Content-type','text/plain')]
+            (root, ext) = os.path.splitext(Path_spl)
+            if ext == ".css":
+                response_headers = [('Content-type','text/css')]
+            elif ext == ".html":
+                response_headers = [('Content-type','text/html')]
+    
+            start_response("200 OK", response_headers)
+            return [Content_s]
+        except:
+            return self.Message_p(start_response, "404 Not found", "Datei " + Path_spl + " nicht vorhanden")
+    
+    # ----------------------------------------------------------
+    def Static_p(self, environ, start_response):
+    # ----------------------------------------------------------
+        Path_s = environ["PATH_INFO"]
+        (head, tail) = os.path.split(Path_s)
+        if tail == "":
+            return self.Message_p(start_response, '404 Not found', 'Static : unbekannte Ressource' + Path_s + '\n')
+        else:
+            return self.ServeFile_p(start_response, "static/" + tail)
+    
+    # ----------------------------------------------------------
+    def Home_p(self, environ, start_response): 
+    # ----------------------------------------------------------
+        Path_s = environ["PATH_INFO"]
+        if Path_s == "/":
+            # keine weiteren Angaben im Ressource-Pfad
+            # Startseite anzeigen
+            return self.Message_p(start_response, '200 OK' , dumps(self.datastore))
+        else:
+            return self.Message_p(start_response, '404 Not found', 'Home : unbekannte Anforderung' + Path_s + '\n')
       
 
 def main():
     # ----------------------------------------------------------
     # das DispatchInfo-Objekt erhaelt ein Dictionary mit Zuordnungen von Pfaden und Verarbeitungsfunktionen
-    # bei Anfragen wird versucht, die laengste Uebereinstimmung im Pfad zu finden
+    # bei Anfragen wird  versucht, die laengste Uebereinstimmung im Pfad zu finden
     # gelingt dies, wird der restliche Bestandteile des Ressource-Pfads im Environment unter PATH_INFO abgelegt
     #
     # Beispiele:
@@ -93,16 +108,14 @@ def main():
     # /newsletter/js/app  -> Prozedur Newsletter_p
     # /static             -> Prozedur Static_p
     
+    webserver = WebServer()
     try:
-        inp = open('data.dat', 'rb')
-        datastore = load(inp)
-        inp.close()
+        webserver.load('data.dat')
     except:
         print "New File!"
         datastore = Warehouse()
     
-    os.environ['DATAFILE'] = dumps(datastore)
-    DispatchInfo = wsgiserver.WSGIPathInfoDispatcher({'/': Home_p, '/static':Static_p})
+    DispatchInfo = wsgiserver.WSGIPathInfoDispatcher({'/': webserver.Home_p, '/static':webserver.Static_p})
    
     # Server lauscht auf Port 8080, IP ist localhost
     server = wsgiserver.CherryPyWSGIServer(('0.0.0.0', 8080), DispatchInfo, timeout=100)
@@ -111,9 +124,7 @@ def main():
         server.start()
     except KeyboardInterrupt:
         server.stop()
-        out = open('data.dat', 'wb')
-        dump(datastore, out)
-        out.close()
+        webserver.save('data.dat')
    
 # ----------------------------------------------------------
 # ----------------------------------------------------------
