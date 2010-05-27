@@ -83,6 +83,23 @@ class WebServer:
         else:
             return self.ServeFile_p(start_response, "static/" + tail)
     
+    def Test_p(self, environ, start_response):
+        status = '200 OK'
+        response_headers = [('Content-type','text/html')]
+        Parameter_o = {}
+        if "REQUEST_METHOD" in environ:
+            Method_s = environ["REQUEST_METHOD"]
+        if Method_s == "GET":
+            Parameter_o = cgi.parse_qs(environ["QUERY_STRING"])
+            # weiter verarbeiten ...
+        elif Method_s == "POST":
+            Input_o = environ["wsgi.input"]
+            len_i = int(environ["CONTENT_LENGTH"])
+            Content_s = Input_o.read(len_i)
+            Parameter_o = cgi.parse_qs(Content_s)
+            print str(Parameter_o)
+            # weiter verarbeiten ...
+        return self.Message_p(start_response, '200 OK', 'Eingabe war : ' + str(Parameter_o) + '\n')
     # ----------------------------------------------------------
     def Home_p(self, environ, start_response): 
     # ----------------------------------------------------------
@@ -118,7 +135,7 @@ def main():
         print "New File!"
         webserver.new()
     
-    DispatchInfo = wsgiserver.WSGIPathInfoDispatcher({'/': webserver.Home_p, '/static':webserver.Static_p})
+    DispatchInfo = wsgiserver.WSGIPathInfoDispatcher({'/': webserver.Home_p, '/static':webserver.Static_p, '/test': webserver.Test_p})
    
     # Server lauscht auf Port 8080, IP ist localhost
     server = wsgiserver.CherryPyWSGIServer(('0.0.0.0', 8080), DispatchInfo, timeout=100)
