@@ -1,6 +1,6 @@
 h1. README
 
-Eine kleine README zum 2. Praktia
+Eine kleine README zum 2. Praktika
 
 h2. Aufgabe
     

@@ -1,0 +1,3 @@
+#simple hgignore file
+.dat
+.pyc
